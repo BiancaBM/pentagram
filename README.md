@@ -1,2 +1,2 @@
-# pentagram_project
+# pentagram
 awesome
