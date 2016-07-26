@@ -32039,13 +32039,14 @@ var Header = React.createClass({displayName: "Header",
 	render: function() {
 		return (
         React.createElement("nav", {className: "navbar navbar-default"}, 
-          React.createElement("div", {className: "container-fluid"}, 
-              React.createElement("ul", {className: "nav navbar-nav"}, 
-                React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
-				        React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register")), 
-                React.createElement("li", null, React.createElement(Link, {to: "about"}, "About"))
-              )
-          )
+			React.createElement("div", {className: "container-fluid"}, 
+				React.createElement("ul", {className: "nav navbar-nav"}, 
+					React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
+					React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register"))
+				), 
+				React.createElement("span", {className: "navbar-right"}, 
+				React.createElement("img", {className: "logo", src: '/img/logo.jpg'}), "PENTAGRAM")
+			)
         )
 		);
 	}
@@ -32059,10 +32060,32 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-
 var Login = React.createClass({displayName: "Login",
-
-	render: function() {
+	getInitialState: function(){
+		return {
+			username: null
+			, password: null
+		};
+	}
+	, userChangeHandler: function(event){
+		this.setState({username: event.target.value});
+	}
+	, passwordChangeHandler: function(event){
+		this.setState({password: event.target.value});
+	}
+	, formSubmitHandler: function(event) {
+		event.preventDefault();
+		console.log(this.state);
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/login/'
+			, type: 'POST'
+			, data: this.state
+		}).then(function(data) {
+              sessionStorage.setItem('authToken', data.token);
+              //redirect to homepage
+		});
+	}
+	, render: function() {
 		var style = {
 			color: 'blue',
 			fontSize: 15,
@@ -32073,21 +32096,27 @@ var Login = React.createClass({displayName: "Login",
 			paddingLeft: 20,
 			paddingRight: 20, 
 			borderRadius: 10
-			
-			//backgroundImage: 'url(./img/abc.jpeg)'
 		};
 		
 		return (
-			React.createElement("div", {className: "LoginForm", style: style, align: "center"}, 
+			React.createElement("div", {className: "LoginForm well col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4"}, 
 				React.createElement("h1", null, "Login"), 
-				React.createElement("form", null, 
-					"Username:", React.createElement("br", null), 
-					React.createElement("input", {type: "text", name: "userName"}), " ", React.createElement("br", null), 
-					"Password:", React.createElement("br", null), 
-					React.createElement("input", {type: "password", name: "password"}), " ", React.createElement("br", null), 
-					React.createElement("input", {type: "Submit", value: "Login"})
-				), 
-				React.createElement(Link, {to: "about", className: "btn btn-primary btn-lg"}, "Learn more")
+				React.createElement("form", {className: "form-horizontal"}, 
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {for: "username", className: "col-sm-3 control-label"}, "Username:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "text", className: "form-control", id: "username", name: "userName", placeholder: "Your username", onChange: this.userChangeHandler})
+						)
+					), 
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {for: "password", className: "col-sm-3 control-label"}, "Password:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "password", className: "form-control", id: "password", name: "password", placeholder: "Your password", onChange: this.passwordChangeHandler})
+						)
+					), 
+
+					React.createElement("button", {className: "btn btn-default col-sm-offset-3 col-sm-9", name: "submit", onClick: this.formSubmitHandler}, "Login")
+				)
 			)
 		);
 	}
@@ -32124,38 +32153,77 @@ var Link = Router.Link;
 
 
 var Register = React.createClass({displayName: "Register",
+	getInitialState: function(){
+			return {
+				firstName: null
+				, lastName: null
+				, username: null
+				, password: null
+				, email: null
+			};
+		}
+	, formSubmitHandler: function(event) {
 
-	render: function() {
-		var style = {
-			color: 'blue',
-			fontSize: 15,
-			backgroundColor: '#F6F3F3',
-			width: 300,
-			paddingTop: 10,
-			paddingBottom: 20,
-			paddingLeft: 20,
-			paddingRight: 20, 
-			borderRadius: 10
-			//backgroundImage: 'url(./img/abc.jpeg)',
-			//width: '30%'
+		this.state = {
+			firstName: document.getElementsByName("firstName")[0].value
+			, lastName: document.getElementsByName("lastName")[0].value
+			, username: document.getElementsByName("username")[0].value
+			, password: document.getElementsByName("password")[0].value
+			, email: document.getElementsByName("email")[0].value
 		};
-		
+		console.log(this.state);
+		event.preventDefault();
+		console.log(this.state);
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/users/'
+			, type: 'POST'
+			, data: this.state
+		}).then(function(data) {
+              sessionStorage.setItem('authToken', data.token);
+              //redirect to homepage
+		});
+	}
+	, render: function() {
 		return (
-			React.createElement("div", {className: "RegisterForm", style: style}, 
+			React.createElement("div", {className: "RegisterForm well col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4"}, 
 				React.createElement("h1", null, "Register"), 
-				React.createElement("form", null, 
-					"Name:", React.createElement("br", null), 
-					React.createElement("input", {type: "text", name: "name"}), " ", React.createElement("br", null), 
-					"Surname:", React.createElement("br", null), 
-					React.createElement("input", {type: "text", name: "surName"}), " ", React.createElement("br", null), 
-					"Username:", React.createElement("br", null), 
-					React.createElement("input", {type: "text", name: "userName"}), " ", React.createElement("br", null), 
-					"Password:", React.createElement("br", null), 
-					React.createElement("input", {type: "password", name: "password"}), " ", React.createElement("br", null), 
-					"Email:", React.createElement("br", null), 
-					React.createElement("input", {type: "email", name: "email"}), " ", React.createElement("br", null), 
-					React.createElement("br", null), 
-					React.createElement("input", {type: "Submit", value: "Register"})
+				React.createElement("form", {className: "form-horizontal"}, 
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {className: "col-sm-3 control-label"}, "First Name:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "text", className: "form-control", name: "firstName"})
+						)
+					), 
+
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {className: "col-sm-3 control-label"}, "Last Name:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "text", className: "form-control", name: "lastName"})
+						)
+					), 
+
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {className: "col-sm-3 control-label"}, "Username:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "text", className: "form-control", name: "username"})
+						)
+					), 
+
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {className: "col-sm-3 control-label"}, "Password:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "password", className: "form-control", name: "password"})
+						)
+					), 
+
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("label", {className: "col-sm-3 control-label"}, "Email:"), 
+						React.createElement("div", {className: "col-sm-9"}, 
+							React.createElement("input", {type: "email", className: "form-control", name: "email"})
+						)
+					), 
+
+					React.createElement("button", {className: "btn btn-default col-sm-offset-3 col-sm-9", name: "submit", onClick: this.formSubmitHandler}, "Register")
 				)
 			)
 		);

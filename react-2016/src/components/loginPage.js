@@ -4,10 +4,32 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-
 var Login = React.createClass({
-
-	render: function() {
+	getInitialState: function(){
+		return {
+			username: null
+			, password: null
+		};
+	}
+	, userChangeHandler: function(event){
+		this.setState({username: event.target.value});
+	}
+	, passwordChangeHandler: function(event){
+		this.setState({password: event.target.value});
+	}
+	, formSubmitHandler: function(event) {
+		event.preventDefault();
+		console.log(this.state);
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/login/'
+			, type: 'POST'
+			, data: this.state
+		}).then(function(data) {
+              sessionStorage.setItem('authToken', data.token);
+              //redirect to homepage
+		});
+	}
+	, render: function() {
 		var style = {
 			color: 'blue',
 			fontSize: 15,
@@ -18,21 +40,27 @@ var Login = React.createClass({
 			paddingLeft: 20,
 			paddingRight: 20, 
 			borderRadius: 10
-			
-			//backgroundImage: 'url(./img/abc.jpeg)'
 		};
 		
 		return (
-			<div className="LoginForm" style={style} align="center">
+			<div className="LoginForm well col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
 				<h1>Login</h1>
-				<form>
-					Username:<br />
-					<input type="text" name = "userName"/> <br />
-					Password:<br />
-					<input type="password" name = "password"/> <br />
-					<input type="Submit" value="Login"/>
+				<form className="form-horizontal">
+					<div className="form-group">
+						<label for="username" className="col-sm-3 control-label">Username:</label>
+						<div className="col-sm-9">
+							<input type="text" className="form-control" id="username" name="userName" placeholder="Your username" onChange={this.userChangeHandler}/>
+						</div>
+					</div>
+					<div className="form-group">
+						<label for="password" className="col-sm-3 control-label">Password:</label>
+						<div className="col-sm-9">
+							<input type="password" className="form-control" id="password" name="password" placeholder="Your password" onChange={this.passwordChangeHandler}/>
+						</div>
+					</div>
+
+					<button className="btn btn-default col-sm-offset-3 col-sm-9" name="submit" onClick={this.formSubmitHandler}>Login</button>
 				</form>
-				<Link to="about" className="btn btn-primary btn-lg">Learn more</Link>
 			</div>
 		);
 	}

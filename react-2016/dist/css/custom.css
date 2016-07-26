@@ -1,0 +1,25 @@
+.navbar-right {
+	padding: 10px;
+	color: #333;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+
+.row {
+	margin: 5px 0;
+}
+
+button.btn-default[name=submit] {
+	max-width: 100px;
+	float: right;
+}
+
+.logo {
+	max-height: 30px;
+	margin-top: -3px;
+}
+
+.col-sm-3 {
+	padding-left: 10px;
+}
+
