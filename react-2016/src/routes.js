@@ -12,7 +12,7 @@ var routes = (
   <Route name="app" path="/" handler={require('./components/app')}>
     <DefaultRoute handler={require('./components/loginPage')} />
 	<Route name="register" handler={require('./components/register')} />
-    <Route name="about" handler={require('./components/about/aboutPage')} />
+    <Route name="photo" handler={require('./components/photo')} />
     <NotFoundRoute handler={require('./components/notFoundPage')} />
     // do the redirect if route fails
     <Redirect from="about-us" to="about" />

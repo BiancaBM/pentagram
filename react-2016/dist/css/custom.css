@@ -23,3 +23,49 @@ button.btn-default[name=submit] {
 	padding-left: 10px;
 }
 
+.round-btn {
+	border-radius: 50px;
+	float: right;
+}
+
+.footer-toolbar-image {
+	background: #000;
+	height: 35px;
+	margin-top: -35px;
+    opacity: 0.6;
+}
+
+.all-icons {
+	color: #fff;
+	margin-top: -27.5px;
+    padding: 0 10px;
+	font-size: 1.3em;
+}
+
+.like-icon {
+	float: right;
+	opacity: 1!important;
+}
+
+.comment-icon {
+	float: left;
+	opacity: 1!important;
+}
+
+.like-icon:hover, .comment-icon:hover {
+	color: #DFE6E8;
+}
+
+.image-frame {
+	width: 350px;
+	height: 195px;
+}
+
+.comment-panel {
+	margin-top: 40px;
+	/*visibility: hidden;*/
+}
+
+.show {
+	visibility: visible !important;
+}

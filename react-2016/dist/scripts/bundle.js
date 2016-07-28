@@ -31977,35 +31977,6 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":69}],197:[function(require,module,exports){
-"use strict";
-
-var React = require('react');
-
-var About = React.createClass({displayName: "About",
-	render: function () {
-		return (
-			React.createElement("div", null, 
-				React.createElement("h1", null, "About"), 
-				React.createElement("p", null, 
-					"This application uses the following technologies:", 
-					React.createElement("ul", null, 
-						React.createElement("li", null, "React"), 
-						React.createElement("li", null, "React Router"), 
-						React.createElement("li", null, "Flux"), 
-						React.createElement("li", null, "Node"), 
-						React.createElement("li", null, "Gulp"), 
-						React.createElement("li", null, "Browserify"), 
-						React.createElement("li", null, "Bootstrap")
-					)
-				)
-			)
-		); 
-	}
-});
-
-module.exports = About;
-
-},{"react":196}],198:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -32028,7 +31999,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":199,"jquery":2,"react":196,"react-router":27}],199:[function(require,module,exports){
+},{"./common/header":198,"jquery":2,"react":196,"react-router":27}],198:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32042,10 +32013,11 @@ var Header = React.createClass({displayName: "Header",
 			React.createElement("div", {className: "container-fluid"}, 
 				React.createElement("ul", {className: "nav navbar-nav"}, 
 					React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
-					React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register"))
+					React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register")), 
+					React.createElement("li", null, React.createElement(Link, {to: "photo"}, "Photo"))
 				), 
 				React.createElement("span", {className: "navbar-right"}, 
-				React.createElement("img", {className: "logo", src: '/img/logo.jpg'}), "PENTAGRAM")
+					React.createElement("img", {className: "logo", src: '/img/logo.jpg'}), "PENTAGRAM")
 			)
         )
 		);
@@ -32053,7 +32025,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"react":196,"react-router":27}],200:[function(require,module,exports){
+},{"react":196,"react-router":27}],199:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32080,25 +32052,22 @@ var Login = React.createClass({displayName: "Login",
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
 			, data: this.state
+			, error: function(response) {
+				console.log(response.responseText.JSON);
+			}
+			// , error: function(xhr, textStatus, errorThrown) {
+			// 		var json = JSON.parse(xhr.responseText);
+			// 		for (var prop in json) {
+			// 	alert(prop+"  "+json[prop]);
+   			//	}
+			//}
 		}).then(function(data) {
-              sessionStorage.setItem('authToken', data.token);
-              //redirect to homepage
+			sessionStorage.setItem('authToken', data.token);
+			window.location = '#/photo';
 		});
 	}
 	, render: function() {
-		var style = {
-			color: 'blue',
-			fontSize: 15,
-			backgroundColor: '#F6F3F3',
-			width: 300,
-			paddingTop: 10,
-			paddingBottom: 20,
-			paddingLeft: 20,
-			paddingRight: 20, 
-			borderRadius: 10
-		};
-		
-		return (
+			return (
 			React.createElement("div", {className: "LoginForm well col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4"}, 
 				React.createElement("h1", null, "Login"), 
 				React.createElement("form", {className: "form-horizontal"}, 
@@ -32124,7 +32093,7 @@ var Login = React.createClass({displayName: "Login",
 
 module.exports = Login;
 
-},{"react":196,"react-router":27}],201:[function(require,module,exports){
+},{"react":196,"react-router":27}],200:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32144,6 +32113,59 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
+},{"react":196,"react-router":27}],201:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
+
+var Photo = React.createClass({displayName: "Photo",
+	getInitialState: function(){
+			return {
+				images: [
+					['/img/abc.jpg', ['com1', 'com2', 'com3'], 10],
+					['/img/dog.jpg', ['com1', 'com2'], 5],
+					['/img/flower.jpg', [], 8]
+				]
+			};
+
+		}
+	, onCommentHandler: function(event) {
+		console.log('Comment button was pressed!');
+	}
+	, render: function() {
+		return (
+			React.createElement("div", {className: "container"}, 
+				React.createElement("div", {className: "row"}, 
+					this.state.images.map(function (item, index) {
+						return (
+						React.createElement("div", {className: "col-md-4 image-frame"}, 
+							React.createElement("a", {href: "#"}, 
+								React.createElement("img", {src: item[0], id: 'image-' + index, width: "100%", height: "100%"})
+							), 
+							React.createElement("div", {className: "footer-toolbar-image"}), 
+							React.createElement("div", {className: "all-icons"}, 
+								React.createElement("div", {className: "comment-icon glyphicon glyphicon-comment"}), 
+								React.createElement("div", {className: "like-icon glyphicon glyphicon-thumbs-up"}, item[2])
+							), 
+							React.createElement("div", {className: "well comment-panel"}, 
+								item[1].map(function (comment, indexCom) {
+								return (
+									React.createElement("div", {id: 'comment-' + index + '-' + indexCom}, comment)
+								);
+							})
+							)
+						)
+						);
+					})
+					), 
+				React.createElement("button", {type: "button", className: "btn btn-primary btn-lg round-btn"}, "+")
+			));
+	}
+});
+
+module.exports = Photo;
 },{"react":196,"react-router":27}],202:[function(require,module,exports){
 "use strict";
 
@@ -32171,7 +32193,6 @@ var Register = React.createClass({displayName: "Register",
 			, password: document.getElementsByName("password")[0].value
 			, email: document.getElementsByName("email")[0].value
 		};
-		console.log(this.state);
 		event.preventDefault();
 		console.log(this.state);
 		$.ajax({
@@ -32257,7 +32278,7 @@ var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: require('./components/app')}, 
     React.createElement(DefaultRoute, {handler: require('./components/loginPage')}), 
 	React.createElement(Route, {name: "register", handler: require('./components/register')}), 
-    React.createElement(Route, {name: "about", handler: require('./components/about/aboutPage')}), 
+    React.createElement(Route, {name: "photo", handler: require('./components/photo')}), 
     React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')}), 
     "// do the redirect if route fails", 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
@@ -32267,4 +32288,4 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/aboutPage":197,"./components/app":198,"./components/loginPage":200,"./components/notFoundPage":201,"./components/register":202,"react":196,"react-router":27}]},{},[203]);
+},{"./components/app":197,"./components/loginPage":199,"./components/notFoundPage":200,"./components/photo":201,"./components/register":202,"react":196,"react-router":27}]},{},[203]);

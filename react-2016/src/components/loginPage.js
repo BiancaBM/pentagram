@@ -24,25 +24,22 @@ var Login = React.createClass({
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
 			, data: this.state
+			, error: function(response) {
+				console.log(response.responseText.JSON);
+			}
+			// , error: function(xhr, textStatus, errorThrown) {
+			// 		var json = JSON.parse(xhr.responseText);
+			// 		for (var prop in json) {
+			// 	alert(prop+"  "+json[prop]);
+   			//	}
+			//}
 		}).then(function(data) {
-              sessionStorage.setItem('authToken', data.token);
-              //redirect to homepage
+			sessionStorage.setItem('authToken', data.token);
+			window.location = '#/photo';
 		});
 	}
 	, render: function() {
-		var style = {
-			color: 'blue',
-			fontSize: 15,
-			backgroundColor: '#F6F3F3',
-			width: 300,
-			paddingTop: 10,
-			paddingBottom: 20,
-			paddingLeft: 20,
-			paddingRight: 20, 
-			borderRadius: 10
-		};
-		
-		return (
+			return (
 			<div className="LoginForm well col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
 				<h1>Login</h1>
 				<form className="form-horizontal">

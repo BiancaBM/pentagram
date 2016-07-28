@@ -24,7 +24,6 @@ var Register = React.createClass({
 			, password: document.getElementsByName("password")[0].value
 			, email: document.getElementsByName("email")[0].value
 		};
-		console.log(this.state);
 		event.preventDefault();
 		console.log(this.state);
 		$.ajax({
