@@ -59,13 +59,15 @@ button.btn-default[name=submit] {
 .image-frame {
 	width: 350px;
 	height: 195px;
+	margin-bottom: 15px;
 }
 
 .comment-panel {
 	margin-top: 40px;
-	/*visibility: hidden;*/
+	display: none;
 }
 
 .show {
-	visibility: visible !important;
+	/*display: block !important;*/
 }
+

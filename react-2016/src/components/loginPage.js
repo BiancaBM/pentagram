@@ -24,18 +24,18 @@ var Login = React.createClass({
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
 			, data: this.state
-			, error: function(response) {
-				console.log(response.responseText.JSON);
+			// , error: function(response) {
+			// 	console.log(response.responseText.JSON);
+			// }
+			, error: function(xhr, textStatus, errorThrown) {
+					var json = JSON.parse(xhr.responseText);
+					for (var prop in json) {
+						alert(prop + "  " + json[prop]);
+					}
 			}
-			// , error: function(xhr, textStatus, errorThrown) {
-			// 		var json = JSON.parse(xhr.responseText);
-			// 		for (var prop in json) {
-			// 	alert(prop+"  "+json[prop]);
-   			//	}
-			//}
 		}).then(function(data) {
 			sessionStorage.setItem('authToken', data.token);
-			window.location = '#/photo';
+			Router.HashLocation.push('photo');
 		});
 	}
 	, render: function() {

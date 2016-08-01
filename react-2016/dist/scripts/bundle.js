@@ -32052,18 +32052,18 @@ var Login = React.createClass({displayName: "Login",
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
 			, data: this.state
-			, error: function(response) {
-				console.log(response.responseText.JSON);
+			// , error: function(response) {
+			// 	console.log(response.responseText.JSON);
+			// }
+			, error: function(xhr, textStatus, errorThrown) {
+					var json = JSON.parse(xhr.responseText);
+					for (var prop in json) {
+						alert(prop + "  " + json[prop]);
+					}
 			}
-			// , error: function(xhr, textStatus, errorThrown) {
-			// 		var json = JSON.parse(xhr.responseText);
-			// 		for (var prop in json) {
-			// 	alert(prop+"  "+json[prop]);
-   			//	}
-			//}
 		}).then(function(data) {
 			sessionStorage.setItem('authToken', data.token);
-			window.location = '#/photo';
+			Router.HashLocation.push('photo');
 		});
 	}
 	, render: function() {
@@ -32123,39 +32123,43 @@ var Link = Router.Link;
 var Photo = React.createClass({displayName: "Photo",
 	getInitialState: function(){
 			return {
-				images: [
-					['/img/abc.jpg', ['com1', 'com2', 'com3'], 10],
-					['/img/dog.jpg', ['com1', 'com2'], 5],
-					['/img/flower.jpg', [], 8]
-				]
+				images: [{
+					"id": 1,
+					"user": 2,
+					"photo": "/media/photo/user_abc/50a03710-4d91-11e6-a049-382c4a1ed3da_images.jpg"
+				  }]
 			};
+	},
 
-		}
+	componentWillMount: function() {
+		var self = this;
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+            self.setState({images: data});
+		});
+	}
+
 	, onCommentHandler: function(event) {
-		console.log('Comment button was pressed!');
+		var photoId = event.target.dataset.id;
+		Router.HashLocation.push('photo/' + photoId);
 	}
 	, render: function() {
+		var self = this;
 		return (
 			React.createElement("div", {className: "container"}, 
 				React.createElement("div", {className: "row"}, 
-					this.state.images.map(function (item, index) {
+					self.state.images.map(function (item) {
 						return (
-						React.createElement("div", {className: "col-md-4 image-frame"}, 
-							React.createElement("a", {href: "#"}, 
-								React.createElement("img", {src: item[0], id: 'image-' + index, width: "100%", height: "100%"})
+						React.createElement("div", {className: "col-md-4 image-frame", key: item.id}, 
+							React.createElement("a", {href: '#/photo/' + item.id}, 
+								React.createElement("img", {src: 'http://127.0.0.1:8000' + item.photo, id: 'image-' + item.id, "data-id": item.id, width: "100%", height: "100%"})
 							), 
-							React.createElement("div", {className: "footer-toolbar-image"}), 
-							React.createElement("div", {className: "all-icons"}, 
-								React.createElement("div", {className: "comment-icon glyphicon glyphicon-comment"}), 
-								React.createElement("div", {className: "like-icon glyphicon glyphicon-thumbs-up"}, item[2])
-							), 
-							React.createElement("div", {className: "well comment-panel"}, 
-								item[1].map(function (comment, indexCom) {
-								return (
-									React.createElement("div", {id: 'comment-' + index + '-' + indexCom}, comment)
-								);
-							})
-							)
+							React.createElement("div", {className: "footer-toolbar-image"})
 						)
 						);
 					})
@@ -32171,6 +32175,7 @@ module.exports = Photo;
 
 var React = require('react');
 var Router = require('react-router');
+
 var Link = Router.Link;
 
 
@@ -32258,12 +32263,74 @@ module.exports = Register;
 
 var React = require('react');
 var Router = require('react-router');
+var Link = Router.Link;
+
+var Photo = React.createClass({displayName: "Photo",
+	getInitialState: function(){
+			return {
+				imageLoaded: false,
+				image: '',
+				comments: '',
+				likes: ''
+			}
+	}
+
+	, componentWillMount: function() {
+		var self = this;
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/photos/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			function findPhoto(img) {
+				return img.id === parseInt(self.props.params.photo_id);
+			}
+            self.setState({imageLoaded: true});
+			self.setState({image:  data.find(findPhoto)});
+		});
+	}
+
+	, onCommentHandler: function(event) {
+		event.persist();
+
+		var id = event.target.id;
+		var elem = document.getElementById("comm-for-" + id);
+
+		if (elem.style.display == 'block')
+		{
+			elem.style.display = 'none';
+		}
+		else
+		{
+			elem.style.display = 'block';
+		}
+	}
+	, render: function() {
+		var self = this;
+		debugger;
+		return (
+			React.createElement("div", {className: "container"}, 
+				React.createElement("div", {className: "row"}, 
+						React.createElement("img", {src: 'http://127.0.0.1:8000' + self.state.image.photo})
+					)
+			));
+	}
+});
+
+module.exports = Photo;
+},{"react":196,"react-router":27}],204:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var Router = require('react-router');
 var routes = require('./routes');
 
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./routes":204,"react":196,"react-router":27}],204:[function(require,module,exports){
+},{"./routes":205,"react":196,"react-router":27}],205:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32279,6 +32346,7 @@ var routes = (
     React.createElement(DefaultRoute, {handler: require('./components/loginPage')}), 
 	React.createElement(Route, {name: "register", handler: require('./components/register')}), 
     React.createElement(Route, {name: "photo", handler: require('./components/photo')}), 
+    React.createElement(Route, {name: "photo/:photo_id", handler: require('./components/singlePhoto')}), 
     React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')}), 
     "// do the redirect if route fails", 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
@@ -32288,4 +32356,4 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/app":197,"./components/loginPage":199,"./components/notFoundPage":200,"./components/photo":201,"./components/register":202,"react":196,"react-router":27}]},{},[203]);
+},{"./components/app":197,"./components/loginPage":199,"./components/notFoundPage":200,"./components/photo":201,"./components/register":202,"./components/singlePhoto":203,"react":196,"react-router":27}]},{},[204]);
