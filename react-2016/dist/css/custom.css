@@ -43,8 +43,7 @@ button.btn-default[name=submit] {
 }
 
 .like-icon {
-	float: right;
-	opacity: 1!important;
+    font-size: 20px;
 }
 
 .comment-icon {
@@ -53,7 +52,7 @@ button.btn-default[name=submit] {
 }
 
 .like-icon:hover, .comment-icon:hover {
-	color: #DFE6E8;
+	color: blue;
 }
 
 .image-frame {
@@ -70,4 +69,24 @@ button.btn-default[name=submit] {
 .show {
 	/*display: block !important;*/
 }
+
+.img-rounded {
+	box-shadow: 3px 3px 2px 0px rgba(50, 50, 50, 0.75);
+}
+
+.photo-img {
+    max-height:400px;
+    height: 100%;
+}
+
+h1 {
+    margin-top: 0px;
+    margin-bottom: 30px;
+}
+
+.like-label {
+    font-size: 20px;
+    padding-left: 5px;
+}
+
 

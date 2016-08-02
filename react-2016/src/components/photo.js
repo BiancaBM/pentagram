@@ -11,7 +11,7 @@ var Photo = React.createClass({
 					"id": 1,
 					"user": 2,
 					"photo": "/media/photo/user_abc/50a03710-4d91-11e6-a049-382c4a1ed3da_images.jpg"
-				  }]
+				}]
 			};
 	},
 
@@ -43,7 +43,6 @@ var Photo = React.createClass({
 							<a href={'#/photo/' + item.id}>
 								<img src={'http://127.0.0.1:8000' + item.photo} id={'image-' + item.id} data-id={item.id} width="100%" height="100%"/>
 							</a>
-							<div className="footer-toolbar-image"></div>
 						</div>
 						);
 					})}

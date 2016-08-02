@@ -34,6 +34,7 @@ var Login = React.createClass({
 					}
 			}
 		}).then(function(data) {
+			debugger;
 			sessionStorage.setItem('authToken', data.token);
 			Router.HashLocation.push('photo');
 		});

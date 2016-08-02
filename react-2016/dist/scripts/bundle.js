@@ -32062,6 +32062,7 @@ var Login = React.createClass({displayName: "Login",
 					}
 			}
 		}).then(function(data) {
+			debugger;
 			sessionStorage.setItem('authToken', data.token);
 			Router.HashLocation.push('photo');
 		});
@@ -32127,7 +32128,7 @@ var Photo = React.createClass({displayName: "Photo",
 					"id": 1,
 					"user": 2,
 					"photo": "/media/photo/user_abc/50a03710-4d91-11e6-a049-382c4a1ed3da_images.jpg"
-				  }]
+				}]
 			};
 	},
 
@@ -32158,8 +32159,7 @@ var Photo = React.createClass({displayName: "Photo",
 						React.createElement("div", {className: "col-md-4 image-frame", key: item.id}, 
 							React.createElement("a", {href: '#/photo/' + item.id}, 
 								React.createElement("img", {src: 'http://127.0.0.1:8000' + item.photo, id: 'image-' + item.id, "data-id": item.id, width: "100%", height: "100%"})
-							), 
-							React.createElement("div", {className: "footer-toolbar-image"})
+							)
 						)
 						);
 					})
@@ -32265,14 +32265,18 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
+//TODO:
+//1. get user Name using user_id, to show on comments
+//2. remember somewhere logged user to can add comments and likes.
+
 var Photo = React.createClass({displayName: "Photo",
 	getInitialState: function(){
 			return {
 				imageLoaded: false,
 				image: '',
-				comments: '',
+				comments: [],
 				likes: ''
-			}
+			};
 	}
 
 	, componentWillMount: function() {
@@ -32288,7 +32292,25 @@ var Photo = React.createClass({displayName: "Photo",
 				return img.id === parseInt(self.props.params.photo_id);
 			}
             self.setState({imageLoaded: true});
-			self.setState({image:  data.find(findPhoto)});
+			self.setState({image: data.find(findPhoto)});
+
+			$.ajax({
+			url: 'http://127.0.0.1:8000/api/photos/' + self.state.image.id + '/comments/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+			}
+			}).then(function(commentData) {
+				self.setState({comments: commentData});
+			});
+
+			$.ajax({
+			url: 'http://127.0.0.1:8000/api/photos/' + self.state.image.id + '/likes/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+			}
+			}).then(function(likesData) {
+				self.setState({likes: likesData});
+			});
 		});
 	}
 
@@ -32296,25 +32318,32 @@ var Photo = React.createClass({displayName: "Photo",
 		event.persist();
 
 		var id = event.target.id;
-		var elem = document.getElementById("comm-for-" + id);
 
-		if (elem.style.display == 'block')
-		{
-			elem.style.display = 'none';
-		}
-		else
-		{
-			elem.style.display = 'block';
-		}
 	}
 	, render: function() {
 		var self = this;
-		debugger;
+		//debugger;
 		return (
 			React.createElement("div", {className: "container"}, 
 				React.createElement("div", {className: "row"}, 
-						React.createElement("img", {src: 'http://127.0.0.1:8000' + self.state.image.photo})
-					)
+					React.createElement("div", {className: "col-md-5"}, 
+						React.createElement("img", {className: "img-rounded photo-img", src: 'http://127.0.0.1:8000' + self.state.image.photo, width: "100%"})
+					), 
+					React.createElement("div", {className: "col-md-7 well"}, 
+						React.createElement("h1", null, "Comments"), 
+						self.state.comments.map(function (item) {
+							return (
+							React.createElement("div", null, 
+								React.createElement("h5", null, React.createElement("b", null, item.user, " said: "), React.createElement("i", null, item.comment))
+							)
+							);
+						}), 
+						self.state.comments.length === 0 ? React.createElement("div", null, "No comments") : ''
+
+					), 
+					React.createElement("span", {className: "like-icon glyphicon glyphicon-thumbs-up"}), React.createElement("span", {className: "like-label"}, self.state.likes)
+				)
+
 			));
 	}
 });
