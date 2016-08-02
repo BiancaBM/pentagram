@@ -19,15 +19,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView
-from pentagram.views import comments,likes
+from pentagram.views import comments,likes, CustomObtainAuthToken
 from rest_framework.authtoken import views as authtoken_views
 
 urlpatterns = [
 
-    url(r'^api/v1/login/$', authtoken_views.obtain_auth_token),
+    url(r'^api/v1/login/$', CustomObtainAuthToken.as_view()),
     url(r'^api/v1/photos/$', 'pentagram.views.photos', name='photos'),
     url(r'^api/v1/users/$', 'pentagram.views.users', name='users'),
-    #url(r'^api/v1/comments/$', 'pentagram.views.comments', name='comments'),
     url(r'^api/photos/(?P<id_photo>[0-9]*)/comments/$', comments),
     url(r'^api/photos/(?P<id_photo>[0-9]*)/likes/$', likes, name="likes"),
     url(r'^admin/', include(admin.site.urls)),
