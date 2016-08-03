@@ -5,14 +5,28 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Header = React.createClass({
-	render: function() {
+	getInitialState: function(){
+			return {
+				userName: ''
+			};
+	}
+	, logOut: function(){
+		sessionStorage.removeItem('authToken');
+		sessionStorage.removeItem('user_id');
+		sessionStorage.removeItem('username');
+		sessionStorage.removeItem('photoPageReloaded');
+	}
+	, render: function() {
+		var self = this;
 		return (
         <nav className="navbar navbar-default">
 			<div className="container-fluid">
 				<ul className="nav navbar-nav">
-					<li><Link to="app">Home</Link></li>
-					<li><Link to="register">Register</Link></li>
+					{sessionStorage.getItem('authToken') == null ? <li><Link to="app">Login</Link></li> : ''}
+					{sessionStorage.getItem('authToken') == null ? <li><Link to="register">Register</Link></li> : ''}
+
 					<li><Link to="photo">Photo</Link></li>
+					{sessionStorage.getItem('authToken') != null ? <li><Link to="app" onClick={self.logOut}>Log Out</Link></li> : ''}
 				</ul>
 				<span className="navbar-right">
 					<img className="logo" src={'/img/logo.jpg'}/>PENTAGRAM</span>

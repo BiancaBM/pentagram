@@ -19,7 +19,6 @@ var Login = React.createClass({
 	}
 	, formSubmitHandler: function(event) {
 		event.preventDefault();
-		console.log(this.state);
 		$.ajax({
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
@@ -34,8 +33,9 @@ var Login = React.createClass({
 					}
 			}
 		}).then(function(data) {
-			debugger;
 			sessionStorage.setItem('authToken', data.token);
+			sessionStorage.setItem('user_id', data.id);
+
 			Router.HashLocation.push('photo');
 		});
 	}
