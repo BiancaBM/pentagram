@@ -20,7 +20,6 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from django.views.generic.base import TemplateView
 from pentagram.views import comments,likes, CustomObtainAuthToken
-from rest_framework.authtoken import views as authtoken_views
 
 urlpatterns = [
 
@@ -30,8 +29,5 @@ urlpatterns = [
     url(r'^api/photos/(?P<id_photo>[0-9]*)/comments/$', comments),
     url(r'^api/photos/(?P<id_photo>[0-9]*)/likes/$', likes, name="likes"),
     url(r'^admin/', include(admin.site.urls)),
-    # url(r'^/api/auth', include('rest_framework')),
-    #url(r'^user/login/', auth_views.login, {'template_name': 'login.html'}, name='login'),
-    #url(r'^user/login/$', 'pentagram.views.login', name='login'),
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='homepage'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

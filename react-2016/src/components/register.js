@@ -33,8 +33,7 @@ var Register = React.createClass({
 			, data: this.state
 		}).then(function(data) {
 			sessionStorage.setItem('authToken', data.token);
-			Router.HashLocation.push('loginPage');
-
+			//Router.HashLocation.push('app');
 		});
 	}
 	, render: function() {

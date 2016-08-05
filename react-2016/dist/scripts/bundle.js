@@ -32007,14 +32007,28 @@ var Router = require('react-router');
 var Link = Router.Link;
 
 var Header = React.createClass({displayName: "Header",
-	render: function() {
+	getInitialState: function(){
+			return {
+				userName: ''
+			};
+	}
+	, logOut: function(){
+		sessionStorage.removeItem('authToken');
+		sessionStorage.removeItem('user_id');
+		sessionStorage.removeItem('username');
+		sessionStorage.removeItem('photoPageReloaded');
+	}
+	, render: function() {
+		var self = this;
 		return (
         React.createElement("nav", {className: "navbar navbar-default"}, 
 			React.createElement("div", {className: "container-fluid"}, 
 				React.createElement("ul", {className: "nav navbar-nav"}, 
-					React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
-					React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register")), 
-					React.createElement("li", null, React.createElement(Link, {to: "photo"}, "Photo"))
+					sessionStorage.getItem('authToken') == null ? React.createElement("li", null, React.createElement(Link, {to: "app"}, "Login")) : '', 
+					sessionStorage.getItem('authToken') == null ? React.createElement("li", null, React.createElement(Link, {to: "register"}, "Register")) : '', 
+
+					React.createElement("li", null, React.createElement(Link, {to: "photo"}, "Photo")), 
+					sessionStorage.getItem('authToken') != null ? React.createElement("li", null, React.createElement(Link, {to: "app", onClick: self.logOut}, "Log Out")) : ''
 				), 
 				React.createElement("span", {className: "navbar-right"}, 
 					React.createElement("img", {className: "logo", src: '/img/logo.jpg'}), "PENTAGRAM")
@@ -32047,7 +32061,6 @@ var Login = React.createClass({displayName: "Login",
 	}
 	, formSubmitHandler: function(event) {
 		event.preventDefault();
-		console.log(this.state);
 		$.ajax({
 			url: 'http://127.0.0.1:8000/api/v1/login/'
 			, type: 'POST'
@@ -32062,8 +32075,9 @@ var Login = React.createClass({displayName: "Login",
 					}
 			}
 		}).then(function(data) {
-			debugger;
 			sessionStorage.setItem('authToken', data.token);
+			sessionStorage.setItem('user_id', data.id);
+
 			Router.HashLocation.push('photo');
 		});
 	}
@@ -32128,7 +32142,8 @@ var Photo = React.createClass({displayName: "Photo",
 					"id": 1,
 					"user": 2,
 					"photo": "/media/photo/user_abc/50a03710-4d91-11e6-a049-382c4a1ed3da_images.jpg"
-				}]
+				}],
+				loggedUsername: ''
 			};
 	},
 
@@ -32143,16 +32158,33 @@ var Photo = React.createClass({displayName: "Photo",
 		}).then(function(data) {
             self.setState({images: data});
 		});
+		
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/users/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(userData) {
+			function findUser(usr) {
+				return usr.id === parseInt(sessionStorage.getItem('user_id'));
+			}
+			var user = userData.find(findUser);
+			self.setState({loggedUsername: user.username});
+			});
 	}
 
-	, onCommentHandler: function(event) {
-		var photoId = event.target.dataset.id;
-		Router.HashLocation.push('photo/' + photoId);
+	, onButtonHandler: function(event) {
+
+
 	}
 	, render: function() {
 		var self = this;
 		return (
-			React.createElement("div", {className: "container"}, 
+		React.createElement("div", null, 
+			sessionStorage.getItem('authToken') != null ? React.createElement("span", {className: "userLogedLabel"}, "Hello ", self.state.loggedUsername) : '', 
+			
+		React.createElement("div", {className: "container"}, 
 				React.createElement("div", {className: "row"}, 
 					self.state.images.map(function (item) {
 						return (
@@ -32165,7 +32197,8 @@ var Photo = React.createClass({displayName: "Photo",
 					})
 					), 
 				React.createElement("button", {type: "button", className: "btn btn-primary btn-lg round-btn"}, "+")
-			));
+			)
+		));
 	}
 });
 
@@ -32205,8 +32238,9 @@ var Register = React.createClass({displayName: "Register",
 			, type: 'POST'
 			, data: this.state
 		}).then(function(data) {
-              sessionStorage.setItem('authToken', data.token);
-              //redirect to homepage
+			sessionStorage.setItem('authToken', data.token);
+
+			//Router.HashLocation.push('app');
 		});
 	}
 	, render: function() {
@@ -32265,17 +32299,14 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 
-//TODO:
-//1. get user Name using user_id, to show on comments
-//2. remember somewhere logged user to can add comments and likes.
-
 var Photo = React.createClass({displayName: "Photo",
 	getInitialState: function(){
 			return {
 				imageLoaded: false,
 				image: '',
 				comments: [],
-				likes: ''
+				likes: '',
+				loggedUsername: ''
 			};
 	}
 
@@ -32311,23 +32342,96 @@ var Photo = React.createClass({displayName: "Photo",
 			}).then(function(likesData) {
 				self.setState({likes: likesData});
 			});
+
+			$.ajax({
+			url: 'http://127.0.0.1:8000/api/v1/users/'
+			, type: 'GET'
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+			}).then(function(userData) {
+				function findUser(usr) {
+					return usr.id === parseInt(sessionStorage.getItem('user_id'));
+				}
+
+				//search user by specific ID in list resulted from ajax for user
+				function findUserByID(userID){
+					for(var i = 0; i <= userData.length; i++){
+						if(userData[i].id === userID) {
+							return userData[i].username;
+						}
+					}
+				}
+
+				var user = userData.find(findUser);
+				if(user != null) {self.setState({loggedUsername: user.username}); }
+
+				var newCommentObj = self.state.comments;
+				self.state.comments.map(function (item, index) {
+					var userID = item.user;
+					newCommentObj[index] = {comment: item.comment, user: findUserByID(userID)};
+				});
+					self.setState({comments: newCommentObj});
+
+				});
+
+
+			if(sessionStorage.getItem('photoPageReloaded') == null) {
+						sessionStorage.setItem('photoPageReloaded', true);
+						window.location.reload();
+					}
 		});
 	}
 
 	, onCommentHandler: function(event) {
-		event.persist();
+		event.preventDefault();
 
-		var id = event.target.id;
+		//var id = event.target.id;
+		var self = this;
 
+		var params = {comment: $('#commentContent').val(), photo: self.state.image.id, user: sessionStorage.getItem('user_id')};
+		$.ajax({
+			url: 'http://127.0.0.1:8000/api/photos/' + self.state.image.id + '/comments/'
+			, type: 'POST'
+			, data: params
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			window.location.reload();
+		});
+	}
+	, onLikeHandler: function(event) {
+		event.preventDefault();
+		
+		var self = this;
+		var token = sessionStorage.getItem('authToken');
+		var params = {photo: self.state.image.id, user: sessionStorage.getItem('user_id')};
+		$.ajax({
+			beforeSend: function(xhr){
+				xhr.setRequestHeader('Authorization', 'Token ' + token);
+			}
+			, url: 'http://127.0.0.1:8000/api/photos/' + self.state.image.id + '/likes/'
+			, type: 'POST'
+			, data: params
+			, error: function(xhr, textStatus, errorThrown) {
+
+			}
+		}).then(function(data) {
+			window.location.reload();
+		});
 	}
 	, render: function() {
 		var self = this;
 		//debugger;
 		return (
+			React.createElement("div", null, 
+				sessionStorage.getItem('authToken') != null ? React.createElement("span", {className: "userLogedLabel"}, "Hello ", self.state.loggedUsername) : '', 
 			React.createElement("div", {className: "container"}, 
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-md-5"}, 
-						React.createElement("img", {className: "img-rounded photo-img", src: 'http://127.0.0.1:8000' + self.state.image.photo, width: "100%"})
+						React.createElement("img", {className: "img-rounded photo-img", src: 'http://127.0.0.1:8000' + self.state.image.photo, width: "100%"}), 
+						React.createElement("span", {className: "like-icon glyphicon glyphicon-thumbs-up", onClick: self.onLikeHandler}), React.createElement("span", {className: "like-label"}, self.state.likes)
 					), 
 					React.createElement("div", {className: "col-md-7 well"}, 
 						React.createElement("h1", null, "Comments"), 
@@ -32338,13 +32442,15 @@ var Photo = React.createClass({displayName: "Photo",
 							)
 							);
 						}), 
-						self.state.comments.length === 0 ? React.createElement("div", null, "No comments") : ''
+						self.state.comments.length === 0 ? React.createElement("div", null, "No comments") : '', 
 
-					), 
-					React.createElement("span", {className: "like-icon glyphicon glyphicon-thumbs-up"}), React.createElement("span", {className: "like-label"}, self.state.likes)
+						sessionStorage.getItem('authToken') != null ? React.createElement("textarea", {placeholder: "add comment", className: "form-control", id: "commentContent"}) : '', 
+						sessionStorage.getItem('authToken') != null ? React.createElement("button", {className: "btn btn-default col-sm-offset-3 col-sm-9", name: "submit", onClick: self.onCommentHandler}, "Add") : ''
+					)
+
 				)
-
-			));
+			)
+				));
 	}
 });
 

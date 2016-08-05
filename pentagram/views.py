@@ -35,16 +35,18 @@ def comments(request, id_photo):
         serializer = CommentSerializer(comments, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     if request.method == "POST":
-        request.POST['photo'] = id_photo
         comment_serializer = CommentSerializer(data=request.data)
         if comment_serializer.is_valid():
             comment_serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=comment_serializer.errors)
 
-@api_view(['POST'])
-@permission_classes((AllowAny,))
+@api_view(['GET','POST'])
 def users(request):
+    if request.method == "GET":
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
     if request.method == "POST":
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
@@ -64,7 +66,7 @@ def likes(request, id_photo):
             Like.objects.create(photo=phot, user=request.user).save()
             return Response(status=status.HTTP_200_OK)
         else:
-            Like.objects.filter(photo=id_photo, user=request.user).delete()
+            Like.objects.filter(photo=phot, user=request.user).delete()
             return Response(status=status.HTTP_205_RESET_CONTENT)
 
 class CustomObtainAuthToken(ObtainAuthToken):

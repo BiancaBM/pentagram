@@ -80,6 +80,7 @@ var Photo = React.createClass({
 
 				});
 
+
 			if(sessionStorage.getItem('photoPageReloaded') == null) {
 						sessionStorage.setItem('photoPageReloaded', true);
 						window.location.reload();
